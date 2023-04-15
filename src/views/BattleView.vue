@@ -1,5 +1,34 @@
+<script setup lang="ts">
+// dependencies
+import { onMounted, onUnmounted } from 'vue';
+import type Phaser from 'phaser';
+import { launch } from '@/game';
+
+// store
+import { useBattleStore } from '@/stores/battle';
+
+const battleStore = useBattleStore();
+
+let gameInstance: Phaser.Game;
+const containerId = 'game-container';
+
+function handleNextTurn() {
+  battleStore.nextTurn();
+}
+
+onMounted(() => {
+  gameInstance = launch(containerId);
+});
+onUnmounted(() => {
+  gameInstance.destroy(false);
+});
+</script>
+
 <template>
-  <section id="page-game">
+  <div>
+    <h2>Round: {{ battleStore.round }}</h2>
+    <div :id="containerId" />
+    <button @click="handleNextTurn">Recarregar</button>
     <!-- <header>
       <h2>ROUND: {{ state.round }}</h2>
       <DisplayChars :characters="state.display" />
@@ -33,75 +62,10 @@
         <SystemBar :characters="state.timeInimigo" />
       </div>
     </footer> -->
-  </section>
+  </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import Phaser from 'phaser';
-
-// components
-import DisplayChars from '@/components/DisplayChars.vue';
-import SkillsSlots from '@/components/SkillsSlots.vue';
-import SystemBar from '@/components/SystemBar.vue';
-
-import { launch } from '@/game';
-
-export default defineComponent({
-  data() {
-    return {
-      gameInstance: {} as any,
-      containerId: 'game-container'
-    };
-  },
-
-  created() {
-    this.gameInstance = launch(this.containerId);
-  },
-
-  unmounted() {
-    this.gameInstance.destroy(true);
-  },
-
-  methods: {
-    handleCSS(index: number, isOpponent = false) {
-      if (!isOpponent) {
-        if (index === 1) {
-          return `top: 20px`;
-        }
-
-        if (index === 2) {
-          return `top: 150px; left: 50px`;
-        }
-
-        if (index === 3) {
-          return `top: 280px`;
-        }
-      } else {
-        if (index === 1) {
-          return `top: 20px`;
-        }
-
-        if (index === 2) {
-          return `top: 150px; right: 50px`;
-        }
-
-        if (index === 3) {
-          return `top: 280px`;
-        }
-      }
-    }
-  }
-});
-</script>
-
-<style scoped>
-#page-game {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
+<style lang="scss" scoped>
 #game-container {
   width: 100%;
   height: 400px;

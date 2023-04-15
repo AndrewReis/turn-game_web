@@ -1,5 +1,8 @@
 import type { GameState } from './models';
 
+import avatarURL from '@/game/assets/itachi-avatar.jpg';
+import previewURL from '@/game/assets/itachi.png';
+
 import {
   CharacterRepository,
   CharacterSpriteSkillRepository,
@@ -10,18 +13,23 @@ export function generateFakeData() {
   const charRepository = new CharacterRepository();
   const charSpriteSkillRepository = new CharacterSpriteSkillRepository();
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 60; i++) {
     const char = charRepository.create({
-      name: `char-random-name-${i}`,
+      name: `char random name ${i}`,
       health: 100,
       stamina: 100,
+      speed: i * 10,
       phaserKey: `char-random-name-${i}`,
-      userId: ''
+      userId: '',
+      avatarURL: avatarURL,
+      previewURL: previewURL,
+      spriteJsonURL: '/src/game/tmp/test.json',
+      spriteURL: '/src/game/tmp/test.png'
     });
 
     for (let i = 0; i < 4; i++) {
       charSpriteSkillRepository.create({
-        name: `skill-random-name-${i}`,
+        name: `skill random name slot-${i}`,
         phaserKey: `skill-random-name-${i}`,
         description: `skill-random-description-${i}`,
         imgURL: '',

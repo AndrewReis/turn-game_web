@@ -6,6 +6,8 @@ import thudOgg from '../assets/thud.ogg';
 import imgURL from '../tmp/test.png';
 import imgJSON from '../tmp/test.json';
 
+import { useBattleStore } from '@/stores/battle';
+
 export default class BootScene extends Scene {
   constructor() {
     super({ key: 'BootScene' });
@@ -16,6 +18,12 @@ export default class BootScene extends Scene {
     this.load.image('bomb', bomb);
     this.load.audio('thud', [thudMp3, thudOgg]);
     this.load.atlas('test', imgURL, imgJSON);
+
+    const { allCharactersOrderedByTurn } = useBattleStore();
+
+    allCharactersOrderedByTurn.forEach((char) => {
+      this.load.atlas(char.phaserKey, char.spriteURL, char.spriteJsonURL);
+    });
   }
 
   create() {

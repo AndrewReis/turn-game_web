@@ -41,16 +41,37 @@ export class Character {
   public phaserKey: string;
   public health: number;
   public stamina: number;
+  public readonly speed: number;
   public userId: string;
+  public readonly avatarURL: string;
+  public readonly previewURL: string;
+  public readonly spriteURL: string;
+  public readonly spriteJsonURL: string;
   public skills?: CharacterSpriteSkill[];
 
-  constructor({ name, phaserKey, health, stamina, userId }: Omit<Character, 'id'>) {
+  constructor({
+    name,
+    phaserKey,
+    health,
+    stamina,
+    speed,
+    userId,
+    avatarURL,
+    spriteURL,
+    spriteJsonURL,
+    previewURL
+  }: Omit<Character, 'id'>) {
     this.id = nanoid();
     this.name = name;
     this.phaserKey = phaserKey;
     this.health = health;
     this.stamina = stamina;
+    this.speed = speed;
     this.userId = userId;
+    this.spriteURL = spriteURL;
+    this.spriteJsonURL = spriteJsonURL;
+    this.avatarURL = avatarURL;
+    this.previewURL = previewURL;
   }
 }
 

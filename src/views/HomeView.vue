@@ -1,80 +1,107 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { generateFakeData, createBattleRoom } from '@/fakes/generate';
-
+// dependencies
+import { ref } from 'vue';
+import { generateFakeData } from '@/fakes/generate';
 import type { Character } from '@/fakes/models';
+import { useCharacterStore } from '@/stores/character';
 
-let characters = reactive<Character[]>([]);
-const currentChar = ref<Character>();
+// composables
+import { usePagination } from '@/composables/pagination';
 
-const userTeam = ref<Character[]>([]);
+// components
+import Header from '@/components/Header.vue';
+import UserInventory from '@/components/UserInventory.vue';
+import GameModes from '@/components/GameModes.vue';
+import TeamSelected from '@/components/TeamSelected.vue';
+import CharacterDetail from '@/components/CharacterDetail.vue';
 
-characters = generateFakeData();
+// store
+const characterStore = useCharacterStore();
 
-const viewCharSkill = (character: Character) => {
-  currentChar.value = character;
-};
+// setup vars
+const page = ref(1);
+const characters = ref<Character[]>([]);
 
-const chooseCharacterForTeam = (character: Character) => {
-  if (!userTeam.value.some((t) => t.id === character.id)) {
-    if (userTeam.value.length < 3) {
-      userTeam.value.push(character);
-    }
+characters.value = generateFakeData();
+characterStore.setCurrentCharacter(characters.value[0]);
+
+// hooks
+const { paginatedList, numberOfPages, currentPage, goToPrev, goToNext } = usePagination(
+  characters,
+  {
+    page: page,
+    perPage: 10
   }
-};
+);
 
-const removeOfTeam = (id: string) => {
-  userTeam.value = userTeam.value.filter((t) => t.id !== id);
-};
-
-const goBattle = () => {
-  if (userTeam.value.length === 3) {
-    const user = {
-      id: 'pegar do localStorage',
-      name: 'pegar do localStorage',
-      team: userTeam.value
-    };
-
-    const opponent = {
-      id: 'Gerar',
-      name: 'Gerar',
-      team: userTeam.value // Gerar
-    };
-
-    const battle = createBattleRoom({ user, opponent });
-  }
+// methods
+const viewCharacterDetail = (character: Character) => {
+  characterStore.setCurrentCharacter(character);
 };
 </script>
 
 <template>
-  <main>
-    <h1>Personagens</h1>
+  <div>
+    <Header />
 
-    <ol>
-      <li v-for="character in characters" :key="character.id">
-        {{ character.id }} {{ character.name }}
-        <button @click="viewCharSkill(character)">Ver Habilidades</button>
-        <button @click="chooseCharacterForTeam(character)">Escolher</button>
-      </li>
-    </ol>
+    <UserInventory />
 
-    <ol v-if="currentChar">
-      <li v-for="skill in currentChar.skills" :key="skill.id">
-        {{ skill.charId }} - {{ skill.name }}
-      </li>
-    </ol>
+    <GameModes />
 
-    <div>
-      <h2>Time</h2>
-      <li v-for="t in userTeam" :key="t.id">
-        {{ t.name }}
-        <button @click="removeOfTeam(t.id)">Remover</button>
-      </li>
+    <TeamSelected />
+
+    <CharacterDetail />
+
+    <div class="container-list-characters">
+      <div><input type="text" placeholder="Pesquisar" /></div>
+      <ul id="characters-list">
+        <li v-for="char in paginatedList" :key="char.id" @click="viewCharacterDetail(char)">
+          <button>
+            <img :src="char.avatarURL" alt="" />
+          </button>
+        </li>
+      </ul>
+
+      <div>
+        <button @click="goToPrev">Prev</button>
+        {{ currentPage }} / {{ numberOfPages }}
+        <button @click="goToNext">Next</button>
+      </div>
     </div>
-
-    <div>
-      <h2>Simulador</h2>
-      <button @click="goBattle">PVE</button>
-    </div>
-  </main>
+  </div>
 </template>
+
+<style scoped lang="scss">
+.container-list-characters {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  place-items: center;
+  gap: 1rem;
+}
+#characters-list {
+  width: 100%;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  grid-template-rows: repeat(2, 50px);
+
+  li {
+    list-style: none;
+    width: 100%;
+    height: 50px;
+    border: 1px solid white;
+
+    button {
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+}
+</style>
